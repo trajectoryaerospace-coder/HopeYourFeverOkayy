@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zann's Fever Care Audio Day</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Itim & Quicksand for a cute teen aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for cute icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        itim: ['Itim', 'cursive'],
+                        quicksand: ['Quicksand', 'sans-serif'],
+                    },
+                    colors: {
+                        pastelPink: '#ffd1dc',
+                        pastelPurple: '#e6e6fa',
+                        pastelBlue: '#d4f0f0',
+                        pastelYellow: '#fffacd',
+                        blush: '#ff9ebb',
+                        lavenderDark: '#9370db',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #fff0f5 0%, #f3e8ff 50%, #e0f2fe 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .cute-title {
+            font-family: 'Itim', cursive;
+            letter-spacing: 1px;
+        }
+        /* Pulse animation for active playing state */
+        @keyframes softPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 158, 187, 0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 0 25px rgba(147, 112, 219, 0.6); }
+        }
+        .playing-card {
+            animation: softPulse 2s infinite ease-in-out;
+        }
+        /* Heartbeat animation for footer heart */
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.25); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.15); }
+            60% { transform: scale(1); }
+        }
+        .heart-beat {
+            animation: heartbeat 1.5s infinite;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff0f5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff9ebb;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-gray-700 flex flex-col items-center justify-start py-6 px-4">
+
+    <!-- Floating Background Bubbles/Hearts -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
+        <div class="absolute top-10 left-6 text-2xl animate-bounce">💖</div>
+        <div class="absolute top-40 right-8 text-xl animate-pulse">✨</div>
+        <div class="absolute top-96 left-4 text-2xl animate-pulse">🌸</div>
+        <div class="absolute bottom-32 right-10 text-3xl animate-bounce">🥣</div>
+        <div class="absolute bottom-10 left-12 text-2xl animate-pulse">🧸</div>
+    </div>
+
+    <!-- Main Container optimized for mobile portrait width -->
+    <div class="relative z-10 w-full max-w-md mx-auto flex flex-col items-center pb-12">
+
+        <!-- Header Greeting Banner -->
+        <header class="w-full bg-white/80 backdrop-blur-md border-4 border-pink-200 rounded-3xl p-5 shadow-lg text-center mb-6">
+            <div class="inline-block bg-pink-100 text-blush text-xs font-bold px-3 py-1 rounded-full mb-2 uppercase tracking-wider">
+                <i class="fa-solid fa-thermometer-half mr-1"></i> Get Well Soon Zann!
+            </div>
+            <h1 class="cute-title text-xl md:text-2xl text-purple-900 font-bold leading-snug uppercase">
+                HEYWOOOO ZANNN LOVELLYY HOPPE YOUR FEVERRR GOOODD GIRLLL
+            </h1>
+            <p class="text-xs text-gray-500 mt-2 font-semibold">
+                Play your schedule audio logs step-by-step while I'm in school! 🎧✨
+            </p>
+        </header>
+
+        <!-- Progress Tracker -->
+        <div class="w-full bg-white/70 backdrop-blur-sm border-2 border-purple-100 rounded-2xl p-4 shadow-sm mb-6 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">📊</span>
+                <div>
+                    <h3 class="cute-title text-sm text-purple-900 font-bold">Day Schedule Progress</h3>
+                    <p id="progress-text" class="text-xs text-gray-500">0 of 10 audio clips completed</p>
+                </div>
+            </div>
+            <div class="w-24 bg-purple-100 h-3 rounded-full overflow-hidden border border-purple-200">
+                <div id="progress-bar" class="bg-gradient-to-r from-pink-400 to-purple-400 h-full w-0 transition-all duration-500"></div>
+            </div>
+        </div>
+
+        <!-- Schedule Audio List Container -->
+        <div id="schedule-list" class="w-full flex flex-col space-y-4 mb-8">
+            <!-- Items injected dynamically via script -->
+        </div>
+
+        <!-- Footer Message with Big Heart -->
+        <footer class="w-full bg-white/90 backdrop-blur-md border-4 border-purple-200 rounded-3xl p-6 shadow-xl text-center flex flex-col items-center mt-2">
+            <!-- Big Heart -->
+            <div class="heart-beat text-6xl my-2 cursor-pointer select-none" onclick="triggerHeartBurst()">
+                💖
+            </div>
+            <h2 class="cute-title text-lg md:text-xl text-purple-800 font-bold uppercase tracking-wide mt-2">
+                HOPEE YOURE WELLL AND U LIEKEKD THESE BROO CALL YOU SOONN MISS YOUUU
+            </h2>
+            <p class="text-xs text-gray-400 mt-3 font-semibold">
+                Rest up, drink lots of water, and get better soon! 🌟🥣🧸
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- Custom Notification Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-purple-900 text-white px-5 py-3 rounded-2xl shadow-xl text-xs font-semibold z-50 transition-all duration-300 opacity-0 pointer-events-none flex items-center space-x-2">
+        <i class="fa-solid fa-heart text-pink-400"></i>
+        <span id="toast-msg">Notification message</span>
+    </div>
+
+    <!-- JavaScript Audio Logic & UI Generation -->
+    <script>
+        // Define the 10 schedule items starting with Introduction in red
+        const scheduleData = [
+            { id: 1, name: "Introduction", file: "Introduction.mp3", icon: "❤️", desc: "Special intro message just for you", isSpecialRed: true },
+            { id: 2, name: "Period 1", file: "1.mp3", icon: "📚", desc: "First class vibes & thinking of you", isSpecialRed: false },
+            { id: 3, name: "Period 2", file: "2.mp3", icon: "✏️", desc: "Still bored in class without u", isSpecialRed: false },
+            { id: 4, name: "Period 3", file: "3.mp3", icon: "🔬", desc: "Almost halfway through the morning!", isSpecialRed: false },
+            { id: 5, name: "Break", file: "break.mp3", icon: "🍪", desc: "Snack time & fever check reminder", isSpecialRed: false },
+            { id: 6, name: "Period 4", file: "4.mp3", icon: "📐", desc: "Math brain cells dying rn", isSpecialRed: false },
+            { id: 7, name: "Period 5", file: "5.mp3", icon: "🎨", desc: "Doodling cute hearts in my notebook", isSpecialRed: false },
+            { id: 8, name: "Lunch", file: "lunch.mp3", icon: "🍱", desc: "Eat something healthy bestie!", isSpecialRed: false },
+            { id: 9, name: "Period 6", file: "6.mp3", icon: "💻", desc: "Afternoon slump is so real", isSpecialRed: false },
+            { id: 10, name: "Period 7", file: "7.mp3", icon: "🎒", desc: "Last class! Going home soon!", isSpecialRed: false }
+        ];
+
+        let currentActiveId = 1; // Only the first item is unlocked initially
+        let completedCount = 0;
+        let activeAudio = null;
+        let activeAudioElement = null;
+
+        const scheduleListEl = document.getElementById('schedule-list');
+        const progressBarEl = document.getElementById('progress-bar');
+        const progressTextEl = document.getElementById('progress-text');
+
+        // Initialize UI
+        function renderSchedule() {
+            scheduleListEl.innerHTML = '';
+            scheduleData.forEach((item) => {
+                const isUnlocked = item.id <= currentActiveId;
+                const isCompleted = item.id < currentActiveId;
+                const isPlaying = activeAudioElement && activeAudioElement.dataset.id == item.id;
+
+                let cardBg = 'bg-white/80 border-pink-100';
+                let iconBg = 'bg-pink-100 text-blush';
+                let statusText = '🔒 Locked';
+                let statusClass = 'text-gray-400 bg-gray-100';
+                let btnClass = 'bg-gray-200 text-gray-400 cursor-not-allowed';
+                let btnText = '<i class="fa-solid fa-lock mr-1"></i> Locked';
+
+                // Special Red Styling for Introduction card
+                if (item.isSpecialRed) {
+                    if (isCompleted) {
+                        cardBg = 'bg-red-50/80 border-red-200 opacity-90';
+                        iconBg = 'bg-red-200 text-red-600';
+                        statusText = '✨ Completed';
+                        statusClass = 'text-green-600 bg-green-50 border border-green-200';
+                        btnClass = 'bg-red-100 hover:bg-red-200 text-red-700 shadow-sm';
+                        btnText = '<i class="fa-solid fa-rotate-right mr-1"></i> Play Again';
+                    } else if (isPlaying) {
+                        cardBg = 'bg-red-100 border-red-400 playing-card shadow-lg ring-2 ring-red-300';
+                        iconBg = 'bg-red-300 text-red-800';
+                        statusText = '🎶 Playing...';
+                        statusClass = 'text-red-700 bg-red-200 border border-red-300 animate-pulse';
+                        btnClass = 'bg-red-600 hover:bg-red-700 text-white shadow-md';
+                        btnText = '<i class="fa-solid fa-pause mr-1"></i> Pause';
+                    } else if (isUnlocked) {
+                        cardBg = 'bg-white border-red-300 shadow-md ring-1 ring-red-200';
+                        iconBg = 'bg-red-100 text-red-600';
+                        statusText = '🔥 Start Here';
+                        statusClass = 'text-red-700 bg-red-50 border border-red-200 font-bold';
+                        btnClass = 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-md';
+                        btnText = '<i class="fa-solid fa-play mr-1"></i> Play Intro';
+                    }
+                } else {
+                    if (isCompleted) {
+                        cardBg = 'bg-pink-50/70 border-pink-200 opacity-90';
+                        iconBg = 'bg-pink-200 text-pink-600';
+                        statusText = '✨ Completed';
+                        statusClass = 'text-green-600 bg-green-50 border border-green-200';
+                        btnClass = 'bg-pink-100 hover:bg-pink-200 text-pink-700 shadow-sm';
+                        btnText = '<i class="fa-solid fa-rotate-right mr-1"></i> Play Again';
+                    } else if (isPlaying) {
+                        cardBg = 'bg-purple-50/90 border-purple-300 playing-card';
+                        iconBg = 'bg-purple-200 text-purple-700';
+                        statusText = '🎶 Playing...';
+                        statusClass = 'text-purple-600 bg-purple-100 border border-purple-200 animate-pulse';
+                        btnClass = 'bg-purple-500 hover:bg-purple-600 text-white shadow-md';
+                        btnText = '<i class="fa-solid fa-pause mr-1"></i> Pause';
+                    } else if (isUnlocked) {
+                        cardBg = 'bg-white border-purple-200 shadow-md';
+                        iconBg = 'bg-purple-100 text-purple-700';
+                        statusText = '🔓 Ready to Play';
+                        statusClass = 'text-purple-600 bg-purple-50 border border-purple-200';
+                        btnClass = 'bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white shadow-md';
+                        btnText = '<i class="fa-solid fa-play mr-1"></i> Play Audio';
+                    }
+                }
+
+                const card = document.createElement('div');
+                card.className = `relative flex flex-col p-4 rounded-2xl border-2 transition-all duration-300 ${cardBg}`;
+                card.dataset.id = item.id;
+
+                const nameTextColor = item.isSpecialRed ? 'text-red-700' : 'text-gray-800';
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-2xl ${iconBg} flex items-center justify-center text-xl shadow-sm">
+                                ${item.icon}
+                            </div>
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <h3 class="cute-title text-base font-bold ${nameTextColor}">${item.name}</h3>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${statusClass}">${statusText}</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-0.5">${item.desc}</p>
+                                <span class="text-[10px] ${item.isSpecialRed ? 'text-red-500 font-semibold' : 'text-gray-400'} font-mono mt-1 block">file: ${item.file}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <button onclick="handlePlayClick(${item.id})" class="play-btn px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center ${btnClass}">
+                                ${btnText}
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Audio Progress Bar Line inside card when playing or completed -->
+                    <div class="w-full bg-gray-100 h-1.5 rounded-full mt-3 overflow-hidden">
+                        <div id="bar-${item.id}" class="${item.isSpecialRed ? 'bg-red-500' : 'bg-purple-400'} h-full w-0 transition-all duration-200"></div>
+                    </div>
+                `;
+
+                scheduleListEl.appendChild(card);
+            });
+
+            // Update Progress bar header (out of 10)
+            completedCount = currentActiveId > 10 ? 10 : currentActiveId - 1;
+            const pct = (completedCount / 10) * 100;
+            progressBarEl.style.width = `${pct}%`;
+            progressTextEl.innerText = `${completedCount} of 10 audio clips completed`;
+        }
+
+        // Handle Audio Playback with Sequential Enforcement
+        function handlePlayClick(id) {
+            if (id > currentActiveId) {
+                showToast("🔒 Complete the previous audio clip first, bestie!");
+                return;
+            }
+
+            const item = scheduleData.find(d => d.id === id);
+
+            // If an audio is already playing
+            if (activeAudioElement && parseInt(activeAudioElement.dataset.id) === id) {
+                if (!activeAudio.paused) {
+                    activeAudio.pause();
+                    renderSchedule();
+                    return;
+                } else {
+                    activeAudio.play();
+                    renderSchedule();
+                    return;
+                }
+            }
+
+            // Stop any currently playing audio
+            if (activeAudio) {
+                activeAudio.pause();
+                activeAudio = null;
+                activeAudioElement = null;
+            }
+
+            activeAudioElement = document.querySelector(`[data-id="${id}"]`);
+            activeAudio = new Audio(item.file);
+
+            showToast(`▶️ Playing ${item.name}... Listen carefully!`);
+
+            let playbackInterval = null;
+            let simulatedProgress = 0;
+
+            activeAudio.onplaying = () => {
+                renderSchedule();
+            };
+
+            activeAudio.onpause = () => {
+                renderSchedule();
+            };
+
+            // When audio finishes completely
+            activeAudio.onended = () => {
+                clearInterval(playbackInterval);
+                document.getElementById(`bar-${id}`).style.width = '100%';
+                
+                showToast(`🎉 ${item.name} completed! Next audio unlocked!`);
+                
+                if (currentActiveId === id && id < 10) {
+                    currentActiveId = id + 1;
+                } else if (currentActiveId === id && id === 10) {
+                    currentActiveId = 11; // All done
+                    showToast("🌟 AMAZING! You completed all Zann's audio logs!");
+                }
+                activeAudio = null;
+                activeAudioElement = null;
+                renderSchedule();
+            };
+
+            activeAudio.onerror = () => {
+                // Fallback simulation for local files when actual mp3 files aren't physically present in sandbox
+                console.log("Local audio file missing, running interactive timer simulation for demo.");
+                simulatedProgress = 0;
+                renderSchedule();
+
+                if (playbackInterval) clearInterval(playbackInterval);
+                
+                playbackInterval = setInterval(() => {
+                    simulatedProgress += 5; // finishes in ~3 seconds per period
+                    const innerBar = document.getElementById(`bar-${id}`);
+                    if (innerBar) innerBar.style.width = `${simulatedProgress}%`;
+
+                    if (simulatedProgress >= 100) {
+                        clearInterval(playbackInterval);
+                        showToast(`🎉 ${item.name} completed! Next audio unlocked!`);
+                        if (currentActiveId === id && id < 10) {
+                            currentActiveId = id + 1;
+                        } else if (currentActiveId === id && id === 10) {
+                            currentActiveId = 11;
+                            showToast("🌟 ALL AUDIO LOGS COMPLETED! Get well soon Zann!");
+                        }
+                        activeAudio = null;
+                        activeAudioElement = null;
+                        renderSchedule();
+                    }
+                }, 150);
+            };
+
+            // Try playing actual audio
+            activeAudio.play().catch(e => {
+                console.log("Autoplay or file not found trigger fallback simulation.");
+                activeAudio.onerror();
+            });
+        }
+
+        // Toast Notification Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Heart Burst Interaction
+        function triggerHeartBurst() {
+            showToast("💖 Sending extra virtual hugs and fever-free vibes to Zann! ✨");
+        }
+
+        // Initial render on load
+        window.onload = () => {
+            renderSchedule();
+        };
+    </script>
+</body>
+</html>
