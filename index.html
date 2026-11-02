@@ -88,7 +88,7 @@
     <div class="relative z-10 w-full max-w-md mx-auto flex flex-col items-center pb-12">
 
         <!-- Header Greeting Banner -->
-        <header class="w-full bg-white/80 backdrop-blur-md border-4 border-pink-200 rounded-3xl p-5 shadow-lg text-center mb-6">
+        <header class="w-full bg-white/90 backdrop-blur-md border-4 border-pink-200 rounded-3xl p-5 shadow-lg text-center mb-6">
             <div class="inline-block bg-pink-100 text-blush text-xs font-bold px-3 py-1 rounded-full mb-2 uppercase tracking-wider">
                 <i class="fa-solid fa-thermometer-half mr-1"></i> Get Well Soon Zann!
             </div>
@@ -100,8 +100,8 @@
             </p>
         </header>
 
-        <!-- Progress Tracker -->
-        <div class="w-full bg-white/70 backdrop-blur-sm border-2 border-purple-100 rounded-2xl p-4 shadow-sm mb-6 flex items-center justify-between">
+        <!-- Overall Schedule Progress Tracker -->
+        <div class="w-full bg-white/80 backdrop-blur-sm border-2 border-purple-100 rounded-2xl p-4 shadow-sm mb-6 flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <span class="text-2xl">📊</span>
                 <div>
@@ -145,16 +145,16 @@
     <script>
         // Define the 10 schedule items starting with Introduction in red using .ogg format
         const scheduleData = [
-            { id: 1, name: "Introduction", file: "Introduction.ogg", icon: "❤️", desc: "Special intro message just for you", isSpecialRed: true },
-            { id: 2, name: "Period 1", file: "1.ogg", icon: "📚", desc: "First class vibes & thinking of you", isSpecialRed: false },
-            { id: 3, name: "Period 2", file: "2.ogg", icon: "✏️", desc: "Still bored in class without u", isSpecialRed: false },
-            { id: 4, name: "Period 3", file: "3.ogg", icon: "🔬", desc: "Almost halfway through the morning!", isSpecialRed: false },
-            { id: 5, name: "Break", file: "break.ogg", icon: "🍪", desc: "Snack time & fever check reminder", isSpecialRed: false },
-            { id: 6, name: "Period 4", file: "4.ogg", icon: "📐", desc: "Math brain cells dying rn", isSpecialRed: false },
-            { id: 7, name: "Period 5", file: "5.ogg", icon: "🎨", desc: "Doodling cute hearts in my notebook", isSpecialRed: false },
-            { id: 8, name: "Lunch", file: "lunch.ogg", icon: "🍱", desc: "Eat something healthy bestie!", isSpecialRed: false },
-            { id: 9, name: "Period 6", file: "6.ogg", icon: "💻", desc: "Afternoon slump is so real", isSpecialRed: false },
-            { id: 10, name: "Period 7", file: "7.ogg", icon: "🎒", desc: "Last class! Going home soon!", isSpecialRed: false }
+            { id: 1, name: "INTRODUCTION", file: "introduction.ogg", icon: "❤️", isSpecialRed: true },
+            { id: 2, name: "PERIOD 1", file: "1.ogg", icon: "📚", isSpecialRed: false },
+            { id: 3, name: "PERIOD 2", file: "2.ogg", icon: "✏️", isSpecialRed: false },
+            { id: 4, name: "PERIOD 3", file: "3.ogg", icon: "🔬", isSpecialRed: false },
+            { id: 5, name: "BREAK", file: "break.ogg", icon: "🍪", isSpecialRed: false },
+            { id: 6, name: "PERIOD 4", file: "4.ogg", icon: "📐", isSpecialRed: false },
+            { id: 7, name: "PERIOD 5", file: "5.ogg", icon: "🎨", isSpecialRed: false },
+            { id: 8, name: "LUNCH", file: "lunch.ogg", icon: "🍱", isSpecialRed: false },
+            { id: 9, name: "PERIOD 6", file: "6.ogg", icon: "💻", isSpecialRed: false },
+            { id: 10, name: "PERIOD 7", file: "7.ogg", icon: "🎒", isSpecialRed: false }
         ];
 
         let currentActiveId = 1; // Only the first item is unlocked initially
@@ -183,7 +183,7 @@
                 const isCompleted = item.id < currentActiveId;
                 const isPlaying = activeAudioElement && parseInt(activeAudioElement.dataset.id) === item.id;
 
-                let cardBg = 'bg-white/80 border-pink-100';
+                let cardBg = 'bg-white/90 border-pink-100';
                 let iconBg = 'bg-pink-100 text-blush';
                 let statusText = '🔒 Locked';
                 let statusClass = 'text-gray-400 bg-gray-100';
@@ -207,7 +207,7 @@
 
                 if (item.isSpecialRed) {
                     if (isCompleted) {
-                        cardBg = 'bg-red-50/80 border-red-200 opacity-90';
+                        cardBg = 'bg-red-50/90 border-red-200 opacity-90';
                         iconBg = 'bg-red-200 text-red-600';
                         statusText = '✨ Completed';
                         statusClass = 'text-green-600 bg-green-50 border border-green-200';
@@ -230,14 +230,14 @@
                     }
                 } else {
                     if (isCompleted) {
-                        cardBg = 'bg-pink-50/70 border-pink-200 opacity-90';
+                        cardBg = 'bg-pink-50/80 border-pink-200 opacity-90';
                         iconBg = 'bg-pink-200 text-pink-600';
                         statusText = '✨ Completed';
                         statusClass = 'text-green-600 bg-green-50 border border-green-200';
                         btnClass = 'bg-pink-100 hover:bg-pink-200 text-pink-700 shadow-sm';
                         btnText = '<i class="fa-solid fa-rotate-right mr-1"></i> Replay';
                     } else if (isPlaying) {
-                        cardBg = 'bg-purple-50/90 border-purple-300 playing-card';
+                        cardBg = 'bg-purple-50/95 border-purple-300 playing-card';
                         iconBg = 'bg-purple-200 text-purple-700';
                         statusText = '🎶 Playing...';
                         statusClass = 'text-purple-600 bg-purple-100 border border-purple-200 animate-pulse';
@@ -246,10 +246,10 @@
                     } else if (isUnlocked) {
                         cardBg = 'bg-white border-purple-200 shadow-md';
                         iconBg = 'bg-purple-100 text-purple-700';
-                        statusText = '🔓 Ready to Play';
+                        statusText = '🔓 Ready';
                         statusClass = 'text-purple-600 bg-purple-50 border border-purple-200';
                         btnClass = 'bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white shadow-md';
-                        btnText = '<i class="fa-solid fa-play mr-1"></i> Play Audio';
+                        btnText = '<i class="fa-solid fa-play mr-1"></i> Play';
                     }
                 }
 
@@ -258,44 +258,40 @@
                 card.dataset.id = item.id;
 
                 const nameTextColor = item.isSpecialRed ? 'text-red-700' : 'text-gray-800';
-                const progressBarColor = item.isSpecialRed ? 'bg-red-500' : 'bg-red-600'; // YouTube Red Bar style
 
                 card.innerHTML = `
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 rounded-2xl ${iconBg} flex items-center justify-center text-xl shadow-sm">
+                            <div class="w-11 h-11 rounded-2xl ${iconBg} flex items-center justify-center text-lg shadow-sm">
                                 ${item.icon}
                             </div>
-                            <div>
-                                <div class="flex items-center space-x-2">
-                                    <h3 class="cute-title text-base font-bold ${nameTextColor}">${item.name}</h3>
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${statusClass}">${statusText}</span>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-0.5">${item.desc}</p>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="cute-title text-base font-bold ${nameTextColor}">${item.name}</h3>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${statusClass}">${statusText}</span>
                             </div>
                         </div>
                         <div>
-                            <button onclick="handlePlayClick(${item.id})" class="play-btn px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center ${btnClass}">
+                            <button onclick="handlePlayClick(${item.id})" class="play-btn px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center ${btnClass}">
                                 ${btnText}
                             </button>
                         </div>
                     </div>
 
-                    <!-- YouTube Style Draggable Red Scrubber Bar & Time indicators -->
+                    <!-- YouTube Style Prominent Red Scrubbing Bar & Time indicators -->
                     <div class="mt-3 pt-2 border-t border-gray-100 flex flex-col space-y-1">
-                        <div class="flex justify-between items-center text-[11px] font-mono font-semibold text-gray-500">
+                        <div class="flex justify-between items-center text-[11px] font-mono font-bold text-gray-500">
                             <span id="time-current-${item.id}">${currentTimeStr}</span>
                             <span id="time-remaining-${item.id}">${remainingStr}</span>
                         </div>
-                        <!-- Scrubbing container with pointer and touch events for smooth dragging -->
+                        <!-- Fully visible and interactive red progress bar container -->
                         <div id="scrub-container-${item.id}" 
                              onmousedown="initScrub(event, ${item.id})" 
                              ontouchstart="initScrub(event, ${item.id})"
-                             class="relative w-full bg-gray-200 h-2.5 rounded-full cursor-pointer group py-1.5">
-                            <div class="absolute inset-y-1.5 left-0 w-full rounded-full overflow-hidden bg-gray-200 shadow-inner">
-                                <div id="scrub-bar-${item.id}" class="${progressBarColor} h-full w-0 transition-all duration-75 relative">
-                                    <!-- YouTube style red slider head dot -->
-                                    <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-red-600 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                             class="relative w-full bg-gray-200 h-3.5 rounded-full cursor-pointer group py-1">
+                            <div class="absolute inset-y-1 left-0 w-full rounded-full overflow-hidden bg-gray-200 shadow-inner">
+                                <div id="scrub-bar-${item.id}" class="bg-red-600 h-full w-0 transition-all duration-75 relative">
+                                    <!-- YouTube red draggable slider thumb dot -->
+                                    <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-red-700 border-2 border-white rounded-full shadow-md"></div>
                                 </div>
                             </div>
                         </div>
@@ -333,7 +329,6 @@
                         updateScrubUI(id, activeAudio.currentTime, activeAudio.duration);
                     }
                 } else {
-                    // If track is not currently playing, start playing and seek
                     handlePlayClick(id);
                     setTimeout(() => {
                         if (activeAudio && !isNaN(activeAudio.duration)) {
