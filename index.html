@@ -190,17 +190,21 @@
                 let btnClass = 'bg-gray-200 text-gray-400 cursor-not-allowed';
                 let btnText = '<i class="fa-solid fa-lock mr-1"></i> Locked';
 
-                // Initial time display values
                 let currentTimeStr = "0:00";
-                let durationStr = "0:00";
+                let remainingStr = "-0:00";
 
                 if (isPlaying && activeAudio) {
                     currentTimeStr = formatTime(activeAudio.currentTime);
                     const dur = activeAudio.duration;
-                    durationStr = isNaN(dur) ? "0:00" : formatTime(dur);
+                    if (!isNaN(dur)) {
+                        const rem = dur - activeAudio.currentTime;
+                        remainingStr = "-" + formatTime(rem);
+                    }
+                } else if (isCompleted) {
+                    currentTimeStr = "Done";
+                    remainingStr = "-0:00";
                 }
 
-                // Special Red Styling for Introduction card
                 if (item.isSpecialRed) {
                     if (isCompleted) {
                         cardBg = 'bg-red-50/80 border-red-200 opacity-90';
@@ -254,7 +258,7 @@
                 card.dataset.id = item.id;
 
                 const nameTextColor = item.isSpecialRed ? 'text-red-700' : 'text-gray-800';
-                const progressBarColor = item.isSpecialRed ? 'bg-red-500' : 'bg-purple-500';
+                const progressBarColor = item.isSpecialRed ? 'bg-red-500' : 'bg-red-600'; // YouTube Red Bar style
 
                 card.innerHTML = `
                     <div class="flex items-center justify-between">
@@ -277,16 +281,22 @@
                         </div>
                     </div>
 
-                    <!-- YouTube Style Scrubber Bar & Time indicators -->
+                    <!-- YouTube Style Draggable Red Scrubber Bar & Time indicators -->
                     <div class="mt-3 pt-2 border-t border-gray-100 flex flex-col space-y-1">
                         <div class="flex justify-between items-center text-[11px] font-mono font-semibold text-gray-500">
                             <span id="time-current-${item.id}">${currentTimeStr}</span>
-                            <span id="time-duration-${item.id}">${durationStr}</span>
+                            <span id="time-remaining-${item.id}">${remainingStr}</span>
                         </div>
-                        <!-- Clickable/Draggable Scrubber Track -->
-                        <div onclick="handleSeek(event, ${item.id})" class="relative w-full bg-gray-200 h-2 rounded-full cursor-pointer group py-1">
-                            <div class="absolute inset-y-1 left-0 w-full rounded-full overflow-hidden bg-gray-200">
-                                <div id="scrub-bar-${item.id}" class="${progressBarColor} h-full w-0 transition-all duration-75"></div>
+                        <!-- Scrubbing container with pointer and touch events for smooth dragging -->
+                        <div id="scrub-container-${item.id}" 
+                             onmousedown="initScrub(event, ${item.id})" 
+                             ontouchstart="initScrub(event, ${item.id})"
+                             class="relative w-full bg-gray-200 h-2.5 rounded-full cursor-pointer group py-1.5">
+                            <div class="absolute inset-y-1.5 left-0 w-full rounded-full overflow-hidden bg-gray-200 shadow-inner">
+                                <div id="scrub-bar-${item.id}" class="${progressBarColor} h-full w-0 transition-all duration-75 relative">
+                                    <!-- YouTube style red slider head dot -->
+                                    <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-red-600 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -295,36 +305,83 @@
                 scheduleListEl.appendChild(card);
             });
 
-            // Update Progress bar header (out of 10)
             completedCount = currentActiveId > 10 ? 10 : currentActiveId - 1;
             const pct = (completedCount / 10) * 100;
             progressBarEl.style.width = `${pct}%`;
             progressTextEl.innerText = `${completedCount} of 10 audio clips completed`;
         }
 
-        // Handle Clicking on Scrubber to seek
-        function handleSeek(event, id) {
+        // YouTube Style Scrub / Drag Logic
+        function initScrub(event, id) {
             if (id > currentActiveId) {
                 showToast("🔒 Complete the previous audio clip first!");
                 return;
             }
 
-            const trackRect = event.currentTarget.getBoundingClientRect();
-            const clickPosition = (event.clientX - trackRect.left) / trackRect.width;
+            event.preventDefault();
+            const container = document.getElementById(`scrub-container-${id}`);
+            
+            function calculateAndSeek(clientX) {
+                const rect = container.getBoundingClientRect();
+                const offsetX = clientX - rect.left;
+                let percentage = offsetX / rect.width;
+                percentage = Math.max(0, Math.min(1, percentage));
 
-            if (activeAudioElement && parseInt(activeAudioElement.dataset.id) === id && activeAudio) {
-                // Currently playing active audio
-                if (!isNaN(activeAudio.duration)) {
-                    activeAudio.currentTime = clickPosition * activeAudio.duration;
-                }
-            } else {
-                // If not currently playing, start playing from that position
-                handlePlayClick(id);
-                setTimeout(() => {
-                    if (activeAudio && !isNaN(activeAudio.duration)) {
-                        activeAudio.currentTime = clickPosition * activeAudio.duration;
+                if (activeAudioElement && parseInt(activeAudioElement.dataset.id) === id && activeAudio) {
+                    if (!isNaN(activeAudio.duration)) {
+                        activeAudio.currentTime = percentage * activeAudio.duration;
+                        updateScrubUI(id, activeAudio.currentTime, activeAudio.duration);
                     }
-                }, 200);
+                } else {
+                    // If track is not currently playing, start playing and seek
+                    handlePlayClick(id);
+                    setTimeout(() => {
+                        if (activeAudio && !isNaN(activeAudio.duration)) {
+                            activeAudio.currentTime = percentage * activeAudio.duration;
+                            updateScrubUI(id, activeAudio.currentTime, activeAudio.duration);
+                        }
+                    }, 150);
+                }
+            }
+
+            const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+            if (clientX !== undefined) {
+                calculateAndSeek(clientX);
+            }
+
+            function onMouseMove(e) {
+                const moveX = e.clientX || (e.touches && e.touches[0].clientX);
+                if (moveX !== undefined) {
+                    calculateAndSeek(moveX);
+                }
+            }
+
+            function onMouseUp() {
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+                window.removeEventListener('touchmove', onMouseMove);
+                window.removeEventListener('touchend', onMouseUp);
+            }
+
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+            window.addEventListener('touchmove', onMouseMove);
+            window.addEventListener('touchend', onMouseUp);
+        }
+
+        function updateScrubUI(id, current, duration) {
+            const curTimeEl = document.getElementById(`time-current-${id}`);
+            const remTimeEl = document.getElementById(`time-remaining-${id}`);
+            const barEl = document.getElementById(`scrub-bar-${id}`);
+
+            if (curTimeEl) curTimeEl.innerText = formatTime(current);
+            if (remTimeEl && !isNaN(duration)) {
+                const rem = duration - current;
+                remTimeEl.innerText = "-" + formatTime(rem);
+            }
+            if (barEl && !isNaN(duration) && duration > 0) {
+                const pct = (current / duration) * 100;
+                barEl.style.width = `${pct}%`;
             }
         }
 
@@ -337,7 +394,6 @@
 
             const item = scheduleData.find(d => d.id === id);
 
-            // If an audio is already playing
             if (activeAudioElement && parseInt(activeAudioElement.dataset.id) === id) {
                 if (!activeAudio.paused) {
                     activeAudio.pause();
@@ -352,7 +408,6 @@
                 }
             }
 
-            // Stop any currently playing audio
             if (activeAudio) {
                 activeAudio.pause();
                 if (updateInterval) clearInterval(updateInterval);
@@ -380,11 +435,7 @@
 
             activeAudio.onended = () => {
                 if (updateInterval) clearInterval(updateInterval);
-                const bar = document.getElementById(`scrub-bar-${id}`);
-                const curTime = document.getElementById(`time-current-${id}`);
-                const durTime = document.getElementById(`time-duration-${id}`);
-                if (bar) bar.style.width = '100%';
-                if (curTime && durTime) curTime.innerText = durTime.innerText;
+                updateScrubUI(id, activeAudio.duration || 5, activeAudio.duration || 5);
                 
                 showToast(`🎉 ${item.name} completed! Next audio unlocked!`);
                 
@@ -400,21 +451,15 @@
             };
 
             activeAudio.onerror = () => {
-                console.log("Local audio file missing, running interactive timer simulation.");
+                console.log("Local audio fallback simulation.");
                 if (simInterval) clearInterval(simInterval);
                 simulatedProgress = 0;
                 
-                const durTime = document.getElementById(`time-duration-${id}`);
-                if (durTime) durTime.innerText = "0:05"; // 5s demo simulation
-
                 simInterval = setInterval(() => {
                     simulatedProgress += 2;
-                    const pct = (simulatedProgress / 50) * 100;
-                    const bar = document.getElementById(`scrub-bar-${id}`);
-                    const curTime = document.getElementById(`time-current-${id}`);
-                    
-                    if (bar) bar.style.width = `${Math.min(pct, 100)}%`;
-                    if (curTime) curTime.innerText = formatTime((simulatedProgress / 10) * 5);
+                    const duration = 5;
+                    const current = (simulatedProgress / 50) * duration;
+                    updateScrubUI(id, current, duration);
 
                     if (simulatedProgress >= 50) {
                         clearInterval(simInterval);
@@ -433,7 +478,6 @@
             };
 
             activeAudio.play().catch(e => {
-                console.log("Autoplay or file not found trigger fallback simulation.");
                 activeAudio.onerror();
             });
         }
@@ -442,20 +486,7 @@
             if (updateInterval) clearInterval(updateInterval);
             updateInterval = setInterval(() => {
                 if (!activeAudio || activeAudio.paused) return;
-
-                const current = activeAudio.currentTime;
-                const duration = activeAudio.duration;
-
-                const curTimeEl = document.getElementById(`time-current-${id}`);
-                const durTimeEl = document.getElementById(`time-duration-${id}`);
-                const barEl = document.getElementById(`scrub-bar-${id}`);
-
-                if (curTimeEl) curTimeEl.innerText = formatTime(current);
-                if (durTimeEl && !isNaN(duration)) durTimeEl.innerText = formatTime(duration);
-                if (barEl && !isNaN(duration) && duration > 0) {
-                    const pct = (current / duration) * 100;
-                    barEl.style.width = `${pct}%`;
-                }
+                updateScrubUI(id, activeAudio.currentTime, activeAudio.duration);
             }, 200);
         }
 
@@ -473,12 +504,10 @@
             }, 3000);
         }
 
-        // Heart Burst Interaction
         function triggerHeartBurst() {
             showToast("💖 Sending extra virtual hugs and fever-free vibes to Zann! ✨");
         }
 
-        // Initial render on load
         window.onload = () => {
             renderSchedule();
         };
